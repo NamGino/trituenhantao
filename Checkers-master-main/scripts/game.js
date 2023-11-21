@@ -2,7 +2,7 @@
 window.setInterval(function () {
     myGame.AIturn();
 }, 1000);
-//
+
 
 class Game {
     constructor() {
@@ -17,6 +17,34 @@ class Game {
         this.playerMove;
         this.thinking = false;
         this.isDoubleMode = false;
+
+        
+        this.player1Time = 90;
+        this.player2Time = 90;
+        this.timerInterval;
+    }
+
+    startTimer() {
+        this.timerInterval = setInterval(() => {
+            if (this.turn === 1) {
+                this.player1Time--;
+                document.getElementById("redtimer").innerHTML = this.formatTime(this.player1Time);
+            } else if (this.turn === 2) {
+                this.player2Time--;
+                document.getElementById("bluetimer").innerHTML = this.formatTime(this.player2Time);
+            }
+            if (this.player1Time <= 0) {
+                this.endGame(2); // Player 2 wins when player 1's time runs out
+            } else if (this.player2Time <= 0) {
+                this.endGame(1); // Player 1 wins when player 2's time runs out
+            }
+        }, 1000); // Update every 1 second
+    }
+
+    formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
     }
 
     moveCheckerP1(locC, locT) {
@@ -38,12 +66,11 @@ class Game {
             }
 
         }
-
+        this.resetTimer();
     };
 
     moveCheckerP2(locC, locT) {
 
-        
         console.log(this.turn);
         //currBoard.board[locC[0]][locC[1]] = 0;
         //currBoard.board[locT[0]][locT[1]] = 2;
@@ -59,8 +86,21 @@ class Game {
             this.display_winner();
             return;
         }
-
+        this.resetTimer();
     };
+
+    resetTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        this.startTimer();
+    }
+    endGame(winner) {
+        this.winner = winner;
+        document.getElementById("winner").innerHTML = winner === 1 ? "Red" : "Blue" + " won on time!";
+        this.display_winner();
+        clearInterval(this.timerInterval);
+    }
 
     validDiagonalP1(locC, locT) { // red - moves down
         let temMvs = findMovesAI(currBoard.board, currBoard.kingsList, 1);
@@ -74,14 +114,12 @@ class Game {
         return isValidMove(locC, locT, temMvs);
     };
 
-
-    //added this cause i noticed some lag when moveAI is put in checker turn , night change it later
     AIturn(){
         if(this.AI && (this.turn == 1) && !this.thinking){
             this.moveAI();
         }
-
     }
+
     moveAI() {
         
         console.log("turn" + this.turn);
@@ -119,7 +157,6 @@ class Game {
             this.display_winner();
             return;
         }
-        
     }
     next(lastMove) {
 
@@ -158,6 +195,7 @@ class Game {
             document.getElementById("turn").innerHTML = "BLUE turn";
         }
     }
+    
 
     onePlayer() {
         this.AI = true;
@@ -177,7 +215,9 @@ class Game {
         document.getElementById("red").style.display = "block";
         document.getElementById("blue").style.display = "block";
         document.getElementById("turn").style.display = "block";
-        document.getElementById("turn").innerHTML = "BLUE turn"; 
+        document.getElementById("turn").innerHTML = "BLUE turn";
+        document.getElementById("redtimer").style.display = "block";
+        document.getElementById("bluetimer").style.display = "block";
     }
     display_winner(){
         console.log("game ended");

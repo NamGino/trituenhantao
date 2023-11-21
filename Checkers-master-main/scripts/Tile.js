@@ -37,7 +37,7 @@ class Tile {
 
                 } else {
                     // mybe tell the user that this is invalid.
-                    console.log("not a valid tile :(");
+                    console.log("not a valid tile.");
                 }
 
             } else {    // color the tile because the checker on it was selected.
